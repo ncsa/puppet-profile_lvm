@@ -46,7 +46,7 @@ class profile_lvm (
 
   String                $default_fs_type,
   Hash[String[1],Hash ] $lvs,
-  Array[String]         $required_pkgs,
+  Array                 $required_pkgs,
 
 ) {
 
@@ -57,6 +57,9 @@ class profile_lvm (
 
   # Include the LVM module
   include ::lvm
+
+  # Include profile_lvm sub-classes
+  include ::profile_lvm::bindmounts
 
   # Manage any LVMs defined via Hiera data
   each( $lvs ) | String[1] $key, Hash $overrides| {
