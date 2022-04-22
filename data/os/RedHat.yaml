@@ -1,0 +1,4 @@
+---
+
+profile_lvm::required_pkgs:
+  - "lvm2":
