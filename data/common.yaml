@@ -2,5 +2,6 @@
 
 profile_lvm::default_fs_type: "xfs"
 profile_lvm::lvs: {}
+profile_lvm::volumes: {}
 
 profile_lvm::bindmounts::map: {}

@@ -41,12 +41,33 @@
 #       device changed '/dev/mapper/VGsystem-LVvar' to '/dev/VGsystem/LVvar'
 #     Notice: /Stage[main]/Stdcfg::Lvm/Lvm::Logical_volume[LVvar]/Mount[/var]/pass: pass changed '0' to '2'
 #   This should not cause an actual remount.
-#   
+#
+# @param volumes
+#   Hash of volumes to be passed to ::lvm:volume.
+#   PVs and VGs will be created if they don't already exist. It is assumed that
+#   Puppet created the PVs and VGs. If they are created outside of Puppet but
+#   the sizes don't match, Puppet may try to resize them.
+#   Example (in YAML format):
+#     volumes:
+#       LV1'
+#         ensure: true
+#         pv: '/dev/sdb'
+#         vg: 'VG1'
+#         fstype: 'xfs'
+#         size: '49G'
+#       LV2'
+#         ensure: true
+#         pv: '/dev/sdc'
+#         vg: 'VG2'
+#         fstype: 'xfs'
+#         size: '72G'
+#   See also: https://github.com/puppetlabs/puppetlabs-lvm/blob/master/manifest/volume.pps
 class profile_lvm (
 
   String                $default_fs_type,
   Hash[String[1],Hash ] $lvs,
   Array                 $required_pkgs,
+  Hash                  $volumes,
 
 ) {
 
@@ -72,5 +93,7 @@ class profile_lvm (
       ;
     }
   }
+
+  ensure_resources( lvm::volume, $volumes )
 
 }
