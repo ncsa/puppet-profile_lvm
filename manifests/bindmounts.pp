@@ -15,9 +15,8 @@
 # @example
 #   include profile_lvm::bindmounts
 class profile_lvm::bindmounts (
-  Optional[ Hash ] $map = undef,
+  Optional[Hash] $map = undef,
 ) {
-
   if $map {
     $map.each | $k, $v | {
       profile_lvm::bindmount_resource { $k: * => $v }

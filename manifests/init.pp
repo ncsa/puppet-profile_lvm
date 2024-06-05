@@ -45,32 +45,30 @@
 class profile_lvm (
 
   String                $default_fs_type,
-  Hash[String[1],Hash ] $lvs,
+  Hash[String[1],Hash] $lvs,
   Array                 $required_pkgs,
 
 ) {
-
   # Install LVM package(s)
   $packages_defaults = {
   }
   ensure_packages( $required_pkgs, $packages_defaults )
 
   # Include the LVM module
-  include ::lvm
+  include lvm
 
   # Include profile_lvm sub-classes
-  include ::profile_lvm::bindmounts
+  include profile_lvm::bindmounts
 
   # Manage any LVMs defined via Hiera data
   each( $lvs ) | String[1] $key, Hash $overrides| {
     lvm::logical_volume {
       $key:
         * => $overrides,
-      ;
+        ;
       default:
         fs_type => $default_fs_type,
-      ;
+        ;
     }
   }
-
 }
