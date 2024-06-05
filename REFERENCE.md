@@ -7,11 +7,11 @@
 ### Classes
 
 * [`profile_lvm`](#profile_lvm): Installs LVM software and wraps/provides defaults for the standalone lvm module.
-* [`profile_lvm::bindmounts`](#profile_lvm--bindmounts): Create bindmounts from (within) LVs on a directory
+* [`profile_lvm::bindmounts`](#profile_lvmbindmounts): Create bindmounts from (within) LVs on a directory
 
 ### Defined types
 
-* [`profile_lvm::bindmount_resource`](#profile_lvm--bindmount_resource): Create a bindmount from (within an) LV on a directory
+* [`profile_lvm::bindmount_resource`](#profile_lvmbindmount_resource): Create a bindmount from (within an) LV on a directory
 
 ## Classes
 
@@ -31,17 +31,17 @@ include profile_lvm
 
 The following parameters are available in the `profile_lvm` class:
 
-* [`required_pkgs`](#-profile_lvm--required_pkgs)
-* [`default_fs_type`](#-profile_lvm--default_fs_type)
-* [`lvs`](#-profile_lvm--lvs)
+* [`required_pkgs`](#required_pkgs)
+* [`default_fs_type`](#default_fs_type)
+* [`lvs`](#lvs)
 
-##### <a name="-profile_lvm--required_pkgs"></a>`required_pkgs`
+##### <a name="required_pkgs"></a>`required_pkgs`
 
 Data type: `Array`
 
 Names of lvm package(s (usually lvm2).
 
-##### <a name="-profile_lvm--default_fs_type"></a>`default_fs_type`
+##### <a name="default_fs_type"></a>`default_fs_type`
 
 Data type: `String`
 
@@ -50,9 +50,9 @@ It would be better to not have a default (it's very dangerous, because if you do
 fs_type and your existing LVM has a different type, it seems that it would reformat the fs. But
 since the ::lvm module already has a default, let's override it with a better one for NCSA systems.
 
-##### <a name="-profile_lvm--lvs"></a>`lvs`
+##### <a name="lvs"></a>`lvs`
 
-Data type: `Hash[String[1],Hash]`
+Data type: `Hash[String[1],Hash ]`
 
 Key-value pairs used to declare ::lvm::logical_volume resources. Lookup is merge, but not deep.
 Form:
@@ -81,7 +81,7 @@ it will likely insist on cleaning up your mount in fstab, e.g.,:
   Notice: /Stage[main]/Stdcfg::Lvm/Lvm::Logical_volume[LVvar]/Mount[/var]/pass: pass changed '0' to '2'
 This should not cause an actual remount.
 
-### <a name="profile_lvm--bindmounts"></a>`profile_lvm::bindmounts`
+### <a name="profile_lvmbindmounts"></a>`profile_lvm::bindmounts`
 
 ```
   profile_lvm::bindmounts::map:
@@ -103,21 +103,21 @@ include profile_lvm::bindmounts
 
 The following parameters are available in the `profile_lvm::bindmounts` class:
 
-* [`map`](#-profile_lvm--bindmounts--map)
+* [`map`](#map)
 
-##### <a name="-profile_lvm--bindmounts--map"></a>`map`
+##### <a name="map"></a>`map`
 
-Data type: `Optional[Hash]`
+Data type: `Optional[ Hash ]`
 
 mapping of bindmounts from LVs and their paths/sub-directories
 
 Example hiera parameter:
 
-Default value: `undef`
+Default value: ``undef``
 
 ## Defined types
 
-### <a name="profile_lvm--bindmount_resource"></a>`profile_lvm::bindmount_resource`
+### <a name="profile_lvmbindmount_resource"></a>`profile_lvm::bindmount_resource`
 
 Assumes that we are bindmounting from an LV or sub-directory of
 an LV.
@@ -138,11 +138,11 @@ profile_lvm::bindmount_resource { "/var/spool/slurmctld.state":
 
 The following parameters are available in the `profile_lvm::bindmount_resource` defined type:
 
-* [`opts`](#-profile_lvm--bindmount_resource--opts)
-* [`src_lv`](#-profile_lvm--bindmount_resource--src_lv)
-* [`src_path`](#-profile_lvm--bindmount_resource--src_path)
+* [`opts`](#opts)
+* [`src_lv`](#src_lv)
+* [`src_path`](#src_path)
 
-##### <a name="-profile_lvm--bindmount_resource--opts"></a>`opts`
+##### <a name="opts"></a>`opts`
 
 Data type: `String`
 
@@ -150,13 +150,13 @@ Mount options. MUST include 'bind'.
 
 Default value: `'defaults,bind,noauto'`
 
-##### <a name="-profile_lvm--bindmount_resource--src_lv"></a>`src_lv`
+##### <a name="src_lv"></a>`src_lv`
 
 Data type: `String`
 
 The LV we are bindmounting from.
 
-##### <a name="-profile_lvm--bindmount_resource--src_path"></a>`src_path`
+##### <a name="src_path"></a>`src_path`
 
 Data type: `String`
 

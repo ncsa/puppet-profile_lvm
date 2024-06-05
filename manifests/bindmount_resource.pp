@@ -25,6 +25,7 @@ define profile_lvm::bindmount_resource (
   String $src_path,
   String $opts = 'defaults,bind,noauto',
 ) {
+
   # Resource defaults
   Mount {
     ensure => mounted,
@@ -38,7 +39,7 @@ define profile_lvm::bindmount_resource (
   $dirparts = reject( split( $name, '/' ), '^$' )
   $numparts = size( $dirparts )
   if ( $numparts > 1 ) {
-    each( Integer[2,$numparts]) |$i| {
+    each( Integer[2,$numparts] ) |$i| {
       ensure_resource(
         'file',
         reduce( Integer[2,$i], $name ) |$memo, $val| { dirname( $memo ) },
@@ -62,8 +63,9 @@ define profile_lvm::bindmount_resource (
     device  => $src_path,
     options => $mount_opts,
     require => [
-      File[$name],
-      Lvm::Logical_volume[$src_lv],
+      File[ $name ],
+      Lvm::Logical_volume[ $src_lv ],
     ],
   }
+
 }
