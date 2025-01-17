@@ -15,6 +15,8 @@
 #   since the ::lvm module already has a default, let's override it with a better one for NCSA systems.
 #
 # @param lvs
+#   Pre-existing lvm's that puppet should be aware of. Notice that there is no
+#   mention of the PVs at all.
 #   Key-value pairs used to declare ::lvm::logical_volume resources. Lookup is merge, but not deep.
 #   Form:
 #     keys = names of LVM resources (String)
@@ -42,32 +44,40 @@
 #     Notice: /Stage[main]/Stdcfg::Lvm/Lvm::Logical_volume[LVvar]/Mount[/var]/pass: pass changed '0' to '2'
 #   This should not cause an actual remount.
 #
-# @param volumes
-#   Hash of volumes to be passed to ::lvm:volume.
-#   PVs and VGs will be created if they don't already exist. It is assumed that
-#   Puppet created the PVs and VGs. If they are created outside of Puppet but
-#   the sizes don't match, Puppet may try to resize them.
+# @param volume_groups
+#   Hash of Volume Groups with PVs to be created and LVs to be mounted.
+#   These are fully created and managed by Puppet.
+#   Puppet creates the PVs and VGs.
 #   Example (in YAML format):
-#     volumes:
-#       LV1'
-#         ensure: true
-#         pv: '/dev/sdb'
-#         vg: 'VG1'
-#         fstype: 'xfs'
-#         size: '49G'
-#       LV2'
-#         ensure: true
-#         pv: '/dev/sdc'
-#         vg: 'VG2'
-#         fstype: 'xfs'
-#         size: '72G'
-#   See also: https://github.com/puppetlabs/puppetlabs-lvm/blob/master/manifest/volume.pps
+#     profile_lvm::volume_groups:
+#       vg_pgsql:
+#       | physical_volumes: [ "/dev/sdb" ]
+#       | logical_volumes:
+#       | ¦ postgres:
+#       | ¦ ┆ fs_type: "xfs"
+#       | ¦ ┆ mountpath: "/var/lib/pgsql"
+#       vg_backups:
+#       | physical_volumes: [ "/dev/sdc" ]
+#       | logical_volumes:
+#       | ¦ backups:
+#       | ¦ ┆ fs_type: "xfs"
+#       | ¦ ┆ mountpath: "/backups"
+#       vg_jsm:
+#       | physical_volumes: [ "/dev/sdd" ]
+#       | logical_volumes:
+#       | ¦ jsm:
+#       | ¦ ┆ fs_type: "xfs"
+#       | ¦ ┆ mountpath: "/jsm"
+#   This is a workaround for the broken behavior of puppetlabs::lvm (pvs
+#   passed as a hash are improperly turned into an array).
+#   PVs and VGs will be created IFF they don't already exist. It is assumed that
+#   See also: https://github.com/puppetlabs/puppetlabs-lvm/
 class profile_lvm (
 
   String                $default_fs_type,
   Hash[String[1],Hash ] $lvs,
   Array                 $required_pkgs,
-  Hash                  $volumes,
+  Hash                  $volume_groups,
 
 ) {
 
@@ -94,6 +104,19 @@ class profile_lvm (
     }
   }
 
-  ensure_resources( lvm::volume, $volumes )
+  
+  $volume_groups.each | String[1] $vg, Hash $params | {
+    # Create the physical volumes, if needed
+    $pvs = $params[ 'physical_volumes' ]
+    lvm::physical_volume { $pvs :
+      unless_vg => $vg,
+    }
+    # Create the volume groups, if needed
+    lvm::volume_group { $vg :
+      createonly => true,
+    }
+    $lvs = $params[ 'logical_volumes' ]
+  }
+  # ensure_resources( lvm::volume, $volumes )
 
 }
